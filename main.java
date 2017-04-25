@@ -7,19 +7,19 @@ public class main {
 		
 		Scanner stdin= new Scanner(System.in);
 		
-		System.out.println("Digite o nome do ingrediente");
-		String nome= stdin.nextLine();
-		System.out.println("Digite o preço");
-		Double preco=stdin.nextDouble();
-		System.out.println("Digite a qtd");
+		System.out.println("Digite o n da mesa");
+		int nome= stdin.nextInt();
+		System.out.println("Digite o disponivel");
+		boolean b= stdin.nextBoolean();
+		System.out.println("Digite o grupo");
 		int qtd= stdin.nextInt();
 		
-		Ingrediente i= new Ingrediente(nome,preco,qtd);
+		Mesas m= new Mesas(nome,b,qtd);
 		System.out.println("o que quer fazer?");
 		int f=stdin.nextInt();
 		if(f==1){
 			try{
-			bd.insereIngrediente(i);
+			bd.insereMesa(m);
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -27,14 +27,14 @@ public class main {
 		}
 		else if(f==2){
 			try{
-				bd.deletaIngrediente(i.getNome());
+				bd.deletaMesas(m.getID());
 			}
 			catch(Exception e){
 				e.printStackTrace();
 			}}
 		else if(f==3){
 			try{
-				bd.alteraIngrediente(i);
+				bd.alteraMesas(m);
 			}
 			catch(Exception e){
 				e.printStackTrace();
@@ -42,7 +42,7 @@ public class main {
 		}
 		else if(f==4){
 			try{
-				Ingrediente i1=bd.buscaIngrediente(i.getNome());
+				Mesas i1=bd.buscaMesas(m.getID());
 				if (i1!=null){
 					System.out.println("achou");
 				}
