@@ -1,5 +1,10 @@
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.sql.SQLException; 
+
+//import basedados.BaseDadosException;
+//import utilidades.Log;
 
 public class GerenciadorBaseDados extends ConectorJDBC {
 
@@ -72,6 +77,26 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		return i;
 
 	}
+	
+	private Ingrediente buscaIngredienteAux(String nome) throws Exception {
+
+		preparaComandoSQL("select ingredientes,qtd,preco from estoque where ingredientes = ? ");
+		pstmt.setString(1, nome);
+
+		ResultSet rs1 = pstmt.executeQuery();
+
+		Ingrediente i = null;
+		if (rs1.next()) {
+			String ingrediente = rs1.getString(1);
+			int qtd = rs1.getInt(2);
+			double preco = rs1.getDouble(3);
+			i = new Ingrediente(ingrediente, preco, qtd);
+		}
+
+	
+		return i;
+
+	}
 
 	public void deletaIngrediente(String nome) throws Exception {
 
@@ -111,13 +136,43 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		pstmt.setDouble(2, i.getPreco());
 		pstmt.setString(3, i.getNome());
 		pstmt.execute();
-		fechaConexao();
-                } catch (SQLException e) {
+		} catch (SQLException e) {
 			//Log.recordLog(e);
 			throw new BaseDadosException(
 					"Erro nos parametros do ingrediente a ser atualizado");
 		}
 	} 
+     fechaConexao();
+
+
+	
+	
+	public LinkedList<Ingrediente> listaIngredientes() throws Exception {
+		LinkedList<Ingrediente> ingredientes = new LinkedList<Ingrediente>();
+		abreConexao();
+		preparaComandoSQL("select ingredientes,qtd,preco from estoque");
+		
+		try {
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				String nome = rs.getString(1);
+				int qtd = rs.getInt(2);
+				double preco = rs.getDouble(3);
+				Ingrediente ingrediente = new Ingrediente(nome, preco, qtd);
+				ingredientes.add(ingrediente);
+			}
+			
+		} catch (SQLException e) {
+			throw new BasedadosException("Problemas ao ler o resultado da consulta.");
+		}
+		
+		fechaConexao();
+		return ingredientes;
+	}
+
+                
+
 
 	// MESAS DO RESTAURANTE
 
@@ -205,6 +260,30 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		fechaConexao();
 
 	}
+	
+	public LinkedList<Mesas> listaMesas() throws Exception {
+		LinkedList<Mesas> mesas = new LinkedList<Mesas>();
+		abreConexao();
+		preparaComandoSQL("select ID,disponivel, grupo from mesas");
+		
+		try {
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				int id = rs.getInt(1);
+				boolean disponivel = rs.getBoolean(2);
+				int grupo = rs.getInt(3);
+				Mesas mesa = new Mesas(id, disponivel, grupo);
+				mesas.add(mesa);
+			}
+			
+		} catch (SQLException e) {
+			throw new Exception("Problemas ao ler o resultado da consulta.");
+		}
+		
+		fechaConexao();
+		return mesas;
+	}
 
 	// PRATOS DO RESTAURANTE
 	public void inserePrato(Prato p) throws Exception {
@@ -245,7 +324,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		while (rs.next()) {
 			String s = rs.getString(1);
 			int a = rs.getInt(2);
-			Ingrediente i1 = buscaIngrediente(s);
+			Ingrediente i1 = buscaIngredienteAux(s);
 			if (i1 == null) {
 				Exception e = new Exception("Ingrediente fora do estoque");
 				throw e;
@@ -259,6 +338,44 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		}
 
 		fechaConexao();
+		return p;
+	}
+	
+	private Prato buscaPratoAux(String nome) throws Exception {
+	
+		preparaComandoSQL("select preco from pratos where nome = ? ");
+		pstmt.setString(1, nome);
+
+		ResultSet aux = pstmt.executeQuery();
+
+		Prato p = null;
+		double preco = -1;
+		if (aux.next()) {
+			preco = aux.getDouble(1);
+		}
+		aux = null;
+		preparaComandoSQL("select ingredientes,qtd from receitas where prato = ? ");
+		pstmt.setString(1, nome);
+		LinkedList<Ingrediente> l = new LinkedList<Ingrediente>();
+		aux = pstmt.executeQuery();
+
+		while (aux.next()) {
+			String s = aux.getString(1);
+			int a = aux.getInt(2);
+			Ingrediente i1 = buscaIngrediente(s);
+			if (i1 == null) {
+				Exception e = new Exception("Ingrediente fora do estoque");
+				throw e;
+			}
+			double precoi = i1.getPreco();
+			Ingrediente i2 = new Ingrediente(s, precoi, a);
+			l.add(i2);
+		}
+		if (l != null && preco != -1) {
+			p = new Prato(nome, preco, l);
+		}
+
+		
 		return p;
 	}
 
@@ -279,6 +396,47 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		pstmt.execute();
 
 		fechaConexao();
+	}
+	
+	public LinkedList<Prato> listaPratos() throws Exception {
+		LinkedList<Prato> pratos = new LinkedList<Prato>();
+		abreConexao();
+		preparaComandoSQL("select nome, preco from pratos");
+		
+		try {
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				String nome = rs.getString(1);
+				double preco = rs.getDouble(2);
+				LinkedList<Ingrediente> ingredientes = new LinkedList<Ingrediente>();
+				preparaComandoSQL("select ingredientes,qtd from receitas where prato = ? ");
+				pstmt.setString(1, nome);
+				ResultSet aux = pstmt.executeQuery();
+				
+				
+				while(aux.next()) {
+					String s = aux.getString(1);
+					int a = aux.getInt(2);
+					Ingrediente i1 = buscaIngredienteAux(s);
+					if (i1 == null) {
+						Exception e = new Exception("Problemas ao ler o resultado da consulta.");
+						throw e;
+					}
+					
+					ingredientes.add(i1);
+				
+				}
+				Prato prato = new Prato(nome, preco, ingredientes);
+				pratos.add(prato);
+			}
+			
+		} catch (SQLException e) {
+			throw new Exception("Problemas ao ler o resultado da consulta.");
+		}
+		
+		fechaConexao();
+		return pratos;
 	}
 
 	// INGREDIENTES LOG
@@ -347,15 +505,33 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 	public boolean buscaLogTemp(Prato p, Mesas m) throws Exception {
 		abreConexao();
-		preparaComandoSQL("select from pedidostemp where mesa=? and prato=?");
+		preparaComandoSQL("select * from pedidostemp where mesa=? and prato=?");
 		pstmt.setInt(1, m.getID());
 		pstmt.setString(2, p.getNome());
 		rs = pstmt.executeQuery();
+
 		if (rs.next()) {
+			fechaConexao();
 			return true;
 		}
+		fechaConexao();
 		return false;
 
+	}
+	
+	public LinkedList<Prato> buscaLogTemp(Mesas mesa) throws Exception {
+		LinkedList<Prato> pratos = new LinkedList<Prato>();
+		abreConexao();
+		preparaComandoSQL("select * from pedidostemp where mesa=?");
+		pstmt.setInt(1, mesa.getID());
+		ResultSet rs2 = pstmt.executeQuery();
+		
+		while(rs2.next()) {
+			Prato prato = buscaPratoAux(rs2.getString(2));
+			pratos.add(prato);
+		}
+		fechaConexao();
+		return pratos;
 	}
 
 	public void deletaLogTemp(Prato p, Mesas m) throws Exception {
