@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 public class GerenciadorBaseDados extends ConectorJDBC {
 
-	private static final String PASSWORD = "Qwertyuiop@0987654321";
+	private static final String PASSWORD = "fernandoxd2";
 	private static final String USER = "root";
 	private static final String HOST = "localhost";
 	private static final String DB_NAME = "restaurantemagico";
@@ -289,9 +289,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			preparaComandoSQL("select codigo from codigos where prato = ?");
 			pstmt.setString(1, nome);
 			rs = pstmt.executeQuery();
+			if(rs.next()){
 			int codigo = rs.getInt(1);
 			p = new Prato(nome, preco, l, codigo);
-			
+			}
 		}
 
 		fechaConexao();
@@ -332,9 +333,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			preparaComandoSQL("select codigo from codigos where prato = ?");
 			pstmt.setString(1, nome);
 			rs = pstmt.executeQuery();
+			if(rs.next()){
 			int codigo = rs.getInt(1);
 			p = new Prato(nome, preco, l, codigo);
-		}
+			}}
 
 		
 		return p;
