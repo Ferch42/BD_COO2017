@@ -1,14 +1,13 @@
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
-import java.sql.SQLException; 
 
 //import basedados.BaseDadosException;
 //import utilidades.Log;
 
 public class GerenciadorBaseDados extends ConectorJDBC {
 
-	private static final String PASSWORD = "fernandoxd2";
+	private static final String PASSWORD = "Qwertyuiop@0987654321";
 	private static final String USER = "root";
 	private static final String HOST = "localhost";
 	private static final String DB_NAME = "restaurantemagico";
@@ -41,16 +40,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 	public void insereIngrediente(Ingrediente i) throws Exception {
 		abreConexao();
 		preparaComandoSQL("insert into estoque (ingredientes, qtd, preco) values (?, ?, ?)");
-		try{
 		pstmt.setString(1, i.getNome());
 		pstmt.setInt(2, i.getQtd());
 		pstmt.setDouble(3, i.getPreco());
 		pstmt.execute();
-		} catch (SQLException e) {
-			throw new BaseDadosException(
-					"Erro nos parametros do ingrediente");
-		}
-	
 		fechaConexao();
 	}
 
@@ -58,7 +51,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		abreConexao();
 		preparaComandoSQL("select ingredientes,qtd,preco from estoque where ingredientes = ? ");
 		pstmt.setString(1, nome);
-                try{   
+
 		rs = pstmt.executeQuery();
 
 		Ingrediente i = null;
@@ -68,11 +61,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			double preco = rs.getDouble(3);
 			i = new Ingrediente(ingrediente, preco, qtd);
 		}
- 		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Re-confirme o nome do ingrediente");
-		}
+
 		fechaConexao();
 		return i;
 
@@ -102,20 +91,14 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 		Ingrediente i = buscaIngrediente(nome);
 		if (i == null) {
-			Exception e = new BasedadosException("Ingrediente inexistente");
+			Exception e = new Exception("Ingrediente inexistente");
 			throw e;
 		}
-		
 		abreConexao();
 		preparaComandoSQL("delete from estoque where ingredientes = ? ");
-		try{
 		pstmt.setString(1, nome);
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Re-confirme o nome do ingrediente");
-		}
+
 		fechaConexao();
 
 	}
@@ -124,28 +107,19 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 		Ingrediente i1 = buscaIngrediente(i.getNome());
 		if (i1 == null) {
-			Exception e = new BasedadosException("Ingrediente inexistente");
+			Exception e = new Exception("Ingrediente inexistente");
 			throw e;
 
 		}
-		
 		abreConexao();
 		preparaComandoSQL("update estoque set qtd = ? , preco =? where ingredientes = ? ");
-		try{
 		pstmt.setInt(1, i.getQtd());
 		pstmt.setDouble(2, i.getPreco());
 		pstmt.setString(3, i.getNome());
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Erro nos parametros do ingrediente a ser atualizado");
-		}
-	} 
-     fechaConexao();
+		fechaConexao();
 
-
-	
+	}
 	
 	public LinkedList<Ingrediente> listaIngredientes() throws Exception {
 		LinkedList<Ingrediente> ingredientes = new LinkedList<Ingrediente>();
@@ -164,42 +138,32 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			}
 			
 		} catch (SQLException e) {
-			throw new BasedadosException("Problemas ao ler o resultado da consulta.");
+			throw new Exception("Problemas ao ler o resultado da consulta.");
 		}
 		
 		fechaConexao();
 		return ingredientes;
 	}
 
-                
-
-
 	// MESAS DO RESTAURANTE
 
 	public void insereMesa(Mesas m) throws Exception {
-		
 		abreConexao();
 		preparaComandoSQL("insert into mesas (ID, disponivel, grupo) values (?, ?, ?)");
-		try{
 		pstmt.setInt(1, m.getID());
 		pstmt.setBoolean(2, m.isDisponivel());
 		pstmt.setInt(3, m.getGrupo());
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Erro nos parametros da mesa a ser inserida");
-		}
 		fechaConexao();
 	}
 
 	public Mesas buscaMesas(int ID) throws Exception {
-		
 		abreConexao();
 		preparaComandoSQL("select ID,disponivel, grupo from mesas where ID = ? ");
 		pstmt.setInt(1, ID);
-                try{
+
 		rs = pstmt.executeQuery();
+
 		Mesas m = null;
 		if (rs.next()) {
 			int id = rs.getInt(1);
@@ -207,11 +171,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			int grupo = rs.getInt(3);
 			m = new Mesas(id, b, grupo);
 		}
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Re-confirme o ID da mesa");
-		}
+
 		fechaConexao();
 		return m;
 	}
@@ -220,20 +180,14 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 		Mesas m = buscaMesas(ID);
 		if (m == null) {
-			Exception e = new BasedadosException("Mesa inexistente");
+			Exception e = new Exception("Mesa inexistente");
 			throw e;
 		}
-		
 		abreConexao();
 		preparaComandoSQL("delete from mesas where ID = ? ");
-		try{
 		pstmt.setInt(1, ID);
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Re-confirme o ID da mesa");
-		}
+
 		fechaConexao();
 	}
 
@@ -241,22 +195,16 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 		Mesas m1 = buscaMesas(m.getID());
 		if (m1 == null) {
-			Exception e = new BasedadosException("Mesa inexistente");
+			Exception e = new Exception("Mesa inexistente");
 			throw e;
 
 		}
 		abreConexao();
 		preparaComandoSQL("update mesas set disponivel = ? , grupo =? where ID = ? ");
-	        pstmt.setBoolean(1, m.isDisponivel());
+		pstmt.setBoolean(1, m.isDisponivel());
 		pstmt.setInt(2, m.getGrupo());
 		pstmt.setInt(3, m.getID());
-		try{
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Erro na mesa enviada");
-		}
 		fechaConexao();
 
 	}
@@ -300,6 +248,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			pstmt.setInt(3, i.getQtd());
 			pstmt.execute();
 		}
+		
+		preparaComandoSQL("insert into codigos (codigo,prato) values (?, ?)");
+		pstmt.setInt(1, p.getCodigo());
+		pstmt.setString(2, p.getNome());
 		fechaConexao();
 	}
 
@@ -334,7 +286,12 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			l.add(i2);
 		}
 		if (l != null && preco != -1) {
-			p = new Prato(nome, preco, l);
+			preparaComandoSQL("select codigo from codigos where prato = ?");
+			pstmt.setString(1, nome);
+			rs = pstmt.executeQuery();
+			int codigo = rs.getInt(1);
+			p = new Prato(nome, preco, l, codigo);
+			
 		}
 
 		fechaConexao();
@@ -372,7 +329,11 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			l.add(i2);
 		}
 		if (l != null && preco != -1) {
-			p = new Prato(nome, preco, l);
+			preparaComandoSQL("select codigo from codigos where prato = ?");
+			pstmt.setString(1, nome);
+			rs = pstmt.executeQuery();
+			int codigo = rs.getInt(1);
+			p = new Prato(nome, preco, l, codigo);
 		}
 
 		
@@ -383,7 +344,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 		Prato p = buscaPrato(nome);
 		if (p == null) {
-			Exception e = new BasedadosException("Prato inexistente");
+			Exception e = new Exception("Prato inexistente");
 			throw e;
 		}
 		abreConexao();
@@ -392,6 +353,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		pstmt.execute();
 
 		preparaComandoSQL("delete from receitas where prato = ?");
+		pstmt.setString(1, nome);
+		pstmt.execute();
+		
+		preparaComandoSQL("delete from codigos where prato = ?");
 		pstmt.setString(1, nome);
 		pstmt.execute();
 
@@ -407,12 +372,17 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			rs = pstmt.executeQuery();
 
 			while (rs.next()) {
+				ResultSet aux;
 				String nome = rs.getString(1);
 				double preco = rs.getDouble(2);
+				preparaComandoSQL("select codigo from codigos where prato = ?");
+				pstmt.setString(1, nome);
+				aux = pstmt.executeQuery();
+				int codigo = aux.getInt(1);
 				LinkedList<Ingrediente> ingredientes = new LinkedList<Ingrediente>();
 				preparaComandoSQL("select ingredientes,qtd from receitas where prato = ? ");
 				pstmt.setString(1, nome);
-				ResultSet aux = pstmt.executeQuery();
+				aux = pstmt.executeQuery();
 				
 				
 				while(aux.next()) {
@@ -427,7 +397,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 					ingredientes.add(i1);
 				
 				}
-				Prato prato = new Prato(nome, preco, ingredientes);
+				Prato prato = new Prato(nome, preco, ingredientes, codigo);
 				pratos.add(prato);
 			}
 			
@@ -443,15 +413,9 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 	public void insereLogI(Ingrediente i) throws Exception {
 		abreConexao();
 		preparaComandoSQL("insert into ingredienteslog (ingredientes,qtd) values (?, ?)");
-		try{
 		pstmt.setString(1, i.getNome());
 		pstmt.setDouble(2, i.getQtd());
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Reconfirme o nome e/ou a quantidade do ingrediente");
-		}
 		fechaConexao();
 	}
 
@@ -467,16 +431,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 	public void insereLogP(Prato p, Mesas m) throws Exception {
 		abreConexao();
 		preparaComandoSQL("insert into pedidoslog (mesa, prato,grupo) values (?, ?, ?)");
-		try{
 		pstmt.setInt(1, m.getID());
 		pstmt.setString(2, p.getNome());
 		pstmt.setInt(3, m.getGrupo());
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Erro nos parametros do pedido/grupo da mesa");
-		}
 		fechaConexao();
 	}
 
@@ -491,15 +449,9 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 	public void insereLogTemp(Prato p, Mesas m) throws Exception {
 		abreConexao();
 		preparaComandoSQL("insert into pedidostemp (mesa, prato) values (?, ?)");
-		try{
 		pstmt.setInt(1, m.getID());
 		pstmt.setString(2, p.getNome());
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Erro nos parametros do pedido");
-		}	
 		fechaConexao();
 	}
 
@@ -540,16 +492,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			preparaComandoSQL("delete from pedidostemp where mesa= ? and prato=?");
 			pstmt.setInt(1, m.getID());
 			pstmt.setString(2, p.getNome());
-			try{
 			pstmt.execute();
-			} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Re-confirme o prato ou/e a mesa");
-		}
 			fechaConexao();
 		} else {
-			Exception e = new BasedadosException("Pedido inexistente");
+			Exception e = new Exception("Pedido inexistente");
 			throw e;
 		}
 	}
@@ -572,13 +518,13 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			return rs.getInt(1);
 		}
 		fechaConexao();
-		return 0;
+		return -1;
 	}
 
 	public void deletaDinheiroCaixa() throws Exception {
 		int i = buscaDinheiroCaixa();
-		if (i == 0) {
-			Exception e = new BasedadosException("Caixa inexistente");
+		if (i == -1) {
+			Exception e = new Exception("Caixa inexistente");
 			throw e;
 		}
 		abreConexao();
@@ -592,13 +538,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		abreConexao();
 		preparaComandoSQL("insert into senhaadm (senha) values (?)");
 		pstmt.setString(1, senha);
-		try{
 		pstmt.execute();
-		} catch (SQLException e) {
-			//Log.recordLog(e);
-			throw new BaseDadosException(
-					"Senha a ser inserida e invalida (Pode conter apenas 10 caracteres)";
-		}
 		fechaConexao();
 	}
 
@@ -624,7 +564,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			pstmt.execute();
 			fechaConexao();
 		} else {
-			Exception e = new BasedadosException("Senha inexistente");
+			Exception e = new Exception("Senha inexistente");
 			throw e;
 		}
 	}

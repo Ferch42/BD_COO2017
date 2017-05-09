@@ -1,0 +1,57 @@
+create database restaurantemagico;
+use restaurantemagico;
+
+create table estoque(
+	ingredientes varchar(150) not null,
+	qtd int default 0,
+	preco double default 0
+	);
+
+create table caixa( dinheiro int not null);
+
+create table ingredienteslog(
+	ingredientes varchar(150) not null,
+	qtd int not null
+	);
+
+create table mesas(
+	ID int not null ,
+	disponivel bool default true,
+	grupo int default 0,
+	primary key (ID)
+);
+
+create table pedidoslog(
+	mesa int not null,
+	prato varchar(150) not null,
+	grupo int not null
+);
+
+create table pedidostemp(
+	mesa int not null,
+	prato varchar(150) not null
+);
+
+create table pratos(
+	nome varchar(150) not null,
+	preco double default 0,
+	primary key (nome)
+);
+
+create table receitas(
+	prato varchar(150) not null,
+	ingredientes varchar(150) not null,
+	qtd int not null
+);
+
+create table senhaadm(
+	senha varchar(10) 
+);
+
+create table codigos(
+	codigo int not null primary key,
+    prato varchar(150) not null
+);
+
+select * from estoque;
+select * from pratos;
