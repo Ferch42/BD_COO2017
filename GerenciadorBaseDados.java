@@ -344,7 +344,6 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			if(rs.next()){
 -			int codigo = rs.getInt(1);
 -			p = new Prato(nome, preco, l, codigo);
-		
 			}
 		}
 
@@ -385,10 +384,12 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		if (l != null && preco != -1) {
 			preparaComandoSQL("select codigo from codigos where prato = ?");
 -			pstmt.setString(1, nome);
--			rs = pstmt.executeQuery();
--			int codigo = rs.getInt(1);
--			p = new Prato(nome, preco, l, codigo);
-		}
+ -			rs = pstmt.executeQuery();
+ -			if(rs.next()){
+ -			int codigo = rs.getInt(1);
+ -			p = new Prato(nome, preco, l, codigo);
+ -			}
+                       }
 
 		
 		return p;
