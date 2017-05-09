@@ -140,8 +140,9 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			throw new BaseDadosException(
 					"Erro nos parametros do ingrediente a ser atualizado");
 		}
+	        fechaConexao();
 	} 
-     fechaConexao();
+     
 
 
 	
@@ -299,6 +300,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			pstmt.setInt(3, i.getQtd());
 			pstmt.execute();
 		}
+		preparaComandoSQL("insert into codigos (codigo,prato) values (?, ?)");
+-		pstmt.setInt(1, p.getCodigo());
+-		pstmt.setString(2, p.getNome());
+		pstmt.execute();
 		fechaConexao();
 	}
 
@@ -333,7 +338,11 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			l.add(i2);
 		}
 		if (l != null && preco != -1) {
-			p = new Prato(nome, preco, l);
+			preparaComandoSQL("select codigo from codigos where prato = ?");
+-			pstmt.setString(1, nome);
+-			rs = pstmt.executeQuery();
+-			int codigo = rs.getInt(1);
+-			p = new Prato(nome, preco, l, codigo);
 		}
 
 		fechaConexao();
@@ -371,7 +380,11 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			l.add(i2);
 		}
 		if (l != null && preco != -1) {
-			p = new Prato(nome, preco, l);
+			preparaComandoSQL("select codigo from codigos where prato = ?");
+-			pstmt.setString(1, nome);
+-			rs = pstmt.executeQuery();
+-			int codigo = rs.getInt(1);
+-			p = new Prato(nome, preco, l, codigo);
 		}
 
 		
@@ -394,6 +407,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		pstmt.setString(1, nome);
 		pstmt.execute();
 
+		preparaComandoSQL("delete from codigos where prato = ?");
+-		pstmt.setString(1, nome);
+-		pstmt.execute();
+		
 		fechaConexao();
 	}
 	
@@ -406,12 +423,17 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			rs = pstmt.executeQuery();
 
 			while (rs.next()) {
+				ResultSet aux;
 				String nome = rs.getString(1);
 				double preco = rs.getDouble(2);
+				preparaComandoSQL("select codigo from codigos where prato = ?");
+-				pstmt.setString(1, nome);
+-				aux = pstmt.executeQuery();
+-				int codigo = aux.getInt(1);
 				LinkedList<Ingrediente> ingredientes = new LinkedList<Ingrediente>();
 				preparaComandoSQL("select ingredientes,qtd from receitas where prato = ? ");
 				pstmt.setString(1, nome);
-				ResultSet aux = pstmt.executeQuery();
+				aux = pstmt.executeQuery();
 				
 				
 				while(aux.next()) {
@@ -426,12 +448,12 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 					ingredientes.add(i1);
 				
 				}
-				Prato prato = new Prato(nome, preco, ingredientes);
+				Prato prato = new Prato(nome, preco, ingredientes, codigo);
 				pratos.add(prato);
 			}
 			
 		} catch (SQLException e) {
-			throw new Exception("Problemas ao ler o resultado da consulta.");
+			throw new BasedadosException("Problemas ao ler o resultado da consulta.");
 		}
 		
 		fechaConexao();
