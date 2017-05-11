@@ -73,6 +73,10 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 					"Re-confirme o nome do ingrediente");
 		}
 		fechaConexao();
+		if(i.qtd <= 0){
+		   throw new BasedadosException
+			   ("O ingrediente esta esgotado");
+		}
 		return i;
 
 	}
@@ -91,10 +95,9 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			double preco = rs1.getDouble(3);
 			i = new Ingrediente(ingrediente, preco, qtd);
 		}
-
-	
+		if(i.qtd>0){
 		return i;
-
+		}else{return null;}
 	}
 
 	public void deletaIngrediente(String nome) throws Exception {
@@ -312,7 +315,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		preparaComandoSQL("select preco from pratos where nome = ? ");
 		pstmt.setString(1, nome);
 
-		rs = pstmt.executeQuery();
+		ResultSet rs = pstmt.executeQuery();
 
 		Prato p = null;
 		double preco = -1;
@@ -330,7 +333,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			int a = rs.getInt(2);
 			Ingrediente i1 = buscaIngredienteAux(s);
 			if (i1 == null) {
-				Exception e = new Exception("Ingrediente fora do estoque");
+				Exception e = new BasedadosException("Ingrediente fora do estoque");
 				throw e;
 			}
 			double precoi = i1.getPreco();
@@ -349,6 +352,19 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 		fechaConexao();
 		return p;
+	}
+	
+	public String buscaPratoID(int cod) throws Exception {
+		abreConexao();
+		preparaComandoSQL("select prato from codigos where codigo = ? ");
+		pstmt.setString(1, cod);
+		try{
+		rs = pstmt.executeQuery();
+                String nome= rs.getString(2);
+		}catch(SQLException e){
+		 throw new BasedadosException("Re-confirme o codigo dado");
+		}	
+		return nome;
 	}
 	
 	private Prato buscaPratoAux(String nome) throws Exception {
@@ -374,7 +390,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			int a = aux.getInt(2);
 			Ingrediente i1 = buscaIngrediente(s);
 			if (i1 == null) {
-				Exception e = new Exception("Ingrediente fora do estoque");
+				Exception e = new BasedadosException("Ingrediente fora do estoque");
 				throw e;
 			}
 			double precoi = i1.getPreco();
@@ -597,7 +613,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			return rs.getInt(1);
 		}
 		fechaConexao();
-		return 0;
+		return null;
 	}
 
 	public void deletaDinheiroCaixa() throws Exception {
