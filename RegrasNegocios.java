@@ -5,22 +5,18 @@ import java.util.LinkedList;
 import basedados.GerenciadorBaseDados;
 
 public class RegrasNegocios{
-   private GerenciadorBaseDados database = new GerenciadorBaseDados();
+   private final GerenciadorBaseDados database = new GerenciadorBaseDados();
 
    private LinkedList<String> listaEspera = new LinkedList<String>();
   
   public boolean confirmarSenha(String senha){
-    boolean ret = buscaSenha(senha);
+    boolean ret = database.buscaSenha(senha);
     return ret;
   }
    
-  public bool HaLista(){
-    String c = listaespera.getfirst();
-    if(c ==null){
-     return false;
-    } else{
-    return true;
-    }
+  public boolean HaLista(){
+    String c = listaEspera.get(0);
+       return c != null;
   }
    
   public void incrementaIngrediente(String nome, int inc){
@@ -190,7 +186,7 @@ public class RegrasNegocios{
     }
     int id2 = ID+1;
     while(true){
-    Mesas m1 = buscaMesas(id2);
+    Mesas m1 = database.buscaMesas(id2);
 		if (m1 == null) {
 			break;
 		}
@@ -215,7 +211,7 @@ public class RegrasNegocios{
 		fechaConexao();
   }
   */
-  public void retornarCaixa()throws NegociosException{
+  public int retornarCaixa()throws NegociosException{
     try{
       int c = database.buscaDinheiroCaixa();
     }catch(Exception e){
@@ -228,7 +224,7 @@ public class RegrasNegocios{
   
   public void fazerPedido(int cod, int ID)throws NegociosException{
     try{
-      Mesas m = buscaMesas(ID);
+      Mesas m = database.buscaMesas(ID);
       String nome = database.buscaPratoID(cod);
       Prato p = database.buscaPrato(nome);
       database.insereLogTemp(p,m);
@@ -251,7 +247,7 @@ public class RegrasNegocios{
   
   public void cancelarPedido(int cod, int ID){
     try{
-     Mesas m = buscaMesas(ID);
+     Mesas m = database.buscaMesas(ID);
      String nome = database.buscapratoID(cod);
      Prato p = database.buscaPrato(nome);
      LinkedList<Prato> temp = buscaLogTemp(m); 
