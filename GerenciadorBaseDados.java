@@ -1,3 +1,6 @@
+package basedados;
+
+import beans.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -260,7 +263,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		pstmt.setDouble(2, p.getPreco());
 		pstmt.execute();
 
-		for (Ingrediente i : p.receita) {
+		for (Ingrediente i : p.getReceita()) {
 			preparaComandoSQL("insert into receitas (prato, ingredientes, qtd) values (?,?,?)");
 			pstmt.setString(1, p.getNome());
 			pstmt.setString(2, i.getNome());
@@ -304,7 +307,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			Ingrediente i2 = new Ingrediente(s, precoi, a);
 			l.add(i2);
 		}
-		if (l != null && preco != -1) {
+		if ( preco != -1) {
 			preparaComandoSQL("select codigo from codigos where prato = ?");
 			pstmt.setString(1, nome);
 			rs = pstmt.executeQuery();
@@ -323,8 +326,12 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		preparaComandoSQL("select prato from codigos where codigo = ? ");
 		pstmt.setInt(1, cod);
 	
-		rs = pstmt.executeQuery();
-                String nome= rs.getString(2);
+		ResultSet  rs = pstmt.executeQuery();
+		String nome;
+			if(rs.next()){
+                nome= rs.getString(1);
+			}
+			else{throw new Exception ("noob");}
                 fechaConexao();
                 return nome;
 		
@@ -351,7 +358,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		while (aux.next()) {
 			String s = aux.getString(1);
 			int a = aux.getInt(2);
-			Ingrediente i1 = buscaIngrediente(s);
+			Ingrediente i1 = buscaIngredienteAux(s);
 			if (i1 == null) {
 				Exception e = new BaseDadosException("Ingrediente fora do estoque");
 				throw e;
@@ -360,7 +367,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			Ingrediente i2 = new Ingrediente(s, precoi, a);
 			l.add(i2);
 		}
-		if (l != null && preco != -1) {
+		if (preco != -1) {
 			preparaComandoSQL("select codigo from codigos where prato = ?");
 			pstmt.setString(1, nome);
  			rs = pstmt.executeQuery();
@@ -476,7 +483,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 	public void apagaLogP() throws Exception {
 		abreConexao();
-		preparaComandoSQL("delete from pratoslog");
+		preparaComandoSQL("delete from pedidoslog");
 		pstmt.execute();
 		fechaConexao();
 	}
@@ -495,7 +502,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 	public boolean buscaLogTemp(Prato p, Mesas m) throws Exception {
 		abreConexao();
-		preparaComandoSQL("select * from pedidostemp where mesa=? and prato=?");
+		preparaComandoSQL("select mesa,prato from pedidostemp where mesa=? and prato=?");
 		pstmt.setInt(1, m.getID());
 		pstmt.setString(2, p.getNome());
 		rs = pstmt.executeQuery();
@@ -521,6 +528,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 			pratos.add(prato);
 		}
 		fechaConexao();
+		
 		return pratos;
 	}
 
@@ -549,21 +557,30 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		fechaConexao();
 	}
 
+	 public void alteraCaixa(int i)throws Exception{
+		 int atual = buscaDinheiroCaixa();
+		 if(atual== -2000000000) throw new Exception("Caixa nao existe");
+		 deletaDinheiroCaixa();
+		 insereDinheiroCaixa(i);
+		 
+	 }
+	
 	public int buscaDinheiroCaixa() throws Exception {
 		abreConexao();
 		preparaComandoSQL("select * from caixa");
-		rs = pstmt.executeQuery();
+  ResultSet rs = pstmt.executeQuery();
+  int n=-2000000000;
 		if (rs.next()) {
-			fechaConexao();
-			return rs.getInt(1);
+			n=rs.getInt(1);
+			
 		}
 		fechaConexao();
-		return -2000000000 ;
+		return n ;
 	}
 
 	public void deletaDinheiroCaixa() throws Exception {
 		int i = buscaDinheiroCaixa();
-		if (i == 0) {
+		if (i == - 2000000000) {
 			Exception e = new BaseDadosException("Caixa inexistente");
 			throw e;
 		}
@@ -586,7 +603,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 
 	public boolean buscaSenha(String senha) throws Exception {
 		abreConexao();
-		preparaComandoSQL("select from senhaadm where senha = ?");
+		preparaComandoSQL("select senha from senhaadm where senha = ? ");
 		pstmt.setString(1, senha);
 		rs = pstmt.executeQuery();
 
