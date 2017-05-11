@@ -2,8 +2,6 @@ package negocios;
 
 import java.util.List;
 import java.util.LinkedList;
-import utilidades.Log;
-import basedados.BaseDadosException;
 import basedados.GerenciadorBaseDados;
 
 public class RegrasNegocios{
@@ -11,8 +9,8 @@ public class RegrasNegocios{
 
    private LinkedList<String> listaEspera = new LinkedList<String>();
   
-  public bool confirmarSenha(String senha){
-    bool ret = database.buscaSenha(senha);
+  public boolean confirmarSenha(String senha){
+    boolean ret = buscaSenha(senha);
     return ret;
   }
    
@@ -31,7 +29,7 @@ public class RegrasNegocios{
       int quant = i.getQtd();  
       i.setQtd(quant+inc);
       database.alteraIngrediente();
-    }catch(BaseDadosException e) {
+    }catch(Exception e) {
     //  Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar a quantidade do ingrediente, re-confirme o nome");
     }
@@ -43,7 +41,7 @@ public class RegrasNegocios{
       int quant = i.getQtd();  
       i.setQtd(quant-inc);
       database.alteraIngrediente();
-    }catch(BaseDadosException e) {
+    }catch(Exception e) {
     //  Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar a quantidade do ingrediente, re-confirme o nome");
     }
@@ -68,7 +66,7 @@ public class RegrasNegocios{
     try{
        database.insereIngrediente(ingrediente);
     }
-    catch(BaseDadosException e){
+    catch(Exception e){
      // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel cadastrar o Ingrediente (problemas no acesso ao banco de dados)");
     }
@@ -81,7 +79,7 @@ public class RegrasNegocios{
     
     try{
       database.inserePrato(prato);
-    }catch (BaseDadosException e){
+    }catch (Exception e){
     //Log.recordLog(e);
       throw new NegociosException("Nao foi possivel cadastrar prato, re-confirme as entradas");
     }
@@ -92,7 +90,7 @@ public class RegrasNegocios{
   Mesas m = new Mesas(ID,d,grupo);
     try{
       database.insereMesa(m);
-    }catch(BaseDadosException e){
+    }catch(Exception e){
    // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel adicionar a Mesa, reconfirme as entradas");
     } 
@@ -103,7 +101,7 @@ public class RegrasNegocios{
       atual.setQtd(qtd);
     try{
       database.alteraIngrediente(atual);
-    }catch(BaseDadosException e) {
+    }catch(Exception e) {
     //  Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar a quantidade do ingrediente, re-confirme o nome");
     }
@@ -114,7 +112,7 @@ public class RegrasNegocios{
       atual.setPreco(preco);
     try{
       database.alteraIngrediente(atual);
-    }catch(BaseDadosException e) {
+    }catch(Exception e) {
      // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar o preco do ingrediente, re-confirme o nome");
     }
@@ -125,7 +123,7 @@ public class RegrasNegocios{
       atual.setNome(nome2);
     try{
       database.alteraNomeIngrediente(atual,nome);
-    }catch(BaseDadosException e) {
+    }catch(Exception e) {
      // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar o preco do ingrediente");
        }
@@ -135,7 +133,7 @@ public class RegrasNegocios{
   void atualizarPrecoPrato(String nome, double preco )throws NegociosException{
     try{ 
     database.alteraPrato(nome, preco);
-    }catch(BaseDadosException e) {
+    }catch(Exception e) {
      // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar o preco do Prato, re-confirme o nome");
        }
@@ -147,7 +145,7 @@ public class RegrasNegocios{
     m.setDisponivel(disp);
     try{
       database.alteraMesas(m);
-    }catch(BaseDadosException e){
+    }catch(Exception e){
       // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar a mesa");      
     }
@@ -159,7 +157,7 @@ public class RegrasNegocios{
     m.setGrupo(grupo);
     try{
       database.alteraMesas(m);
-    }catch(BaseDadosException e){
+    }catch(Exception e){
       // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar a mesa");      
     }
@@ -168,7 +166,7 @@ public class RegrasNegocios{
   public void menuRemoverIngrediente(String nome) throws NegociosException{
     try{
       database.deletaIngrediente(nome);
-    }catch(BaseDadosException e){
+    }catch(Exception e){
       // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel remover o Ingrediente");
     }
@@ -177,7 +175,7 @@ public class RegrasNegocios{
   public void menuRemoverPrato(String nome) throws NegociosException{
     try{
       database.deletaPrato(nome);
-    }catch(BaseDadosException e){
+    }catch(Exception e){
       // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel remover o Prato");
     }
@@ -186,7 +184,7 @@ public class RegrasNegocios{
   public void menuRemoverMesa(int ID) throws NegociosException{
     try{
       database.deletaMesas(ID);
-    }catch(BaseDadosException e){
+    }catch(Exception e){
       // Log.recordLog(e);
       throw new NegociosException("Nao foi possivel remover a mesa");      
     }
@@ -199,7 +197,7 @@ public class RegrasNegocios{
       id2--;
       try{ 
         database.alteraIDMesas(m1,id2);
-      }catch(BaseDadosException e){
+      }catch(Exception e){
          //Log.recordLog(e);
         throw new NegociosException("Erro ao alterar os IDs das mesas restantes");
       }
@@ -220,7 +218,7 @@ public class RegrasNegocios{
   public void retornarCaixa()throws NegociosException{
     try{
       int c = database.buscaDinheiroCaixa();
-    }catch(BaseDadosException e){
+    }catch(Exception e){
   //  Log.recordLog(e);
       throw new NegociosException("Erro ao buscar o valor de caixa");
     }
@@ -237,7 +235,7 @@ public class RegrasNegocios{
       for(Ingrediente i : p.getReceita()){
         try{
           Ingrediente idb = database.buscaIngrediente(i.getNome());
-           }catch(BaseDadosException e){
+           }catch(Exception e){
             throw new NegociosException("O ingrediente " +i.getNome()+" esta esgotado");
         }
       }
@@ -246,7 +244,7 @@ public class RegrasNegocios{
         idb2.setQtd(idb2.getQtd()-i2.getQtd());
         database.alteraIngrediente(idb2);
       }
-    } catch(BaseDadosException e){
+    } catch(Exception e){
        throw new NegociosException("Refer to the error indicated by the database");
     }
   }
@@ -265,7 +263,7 @@ public class RegrasNegocios{
         idb.setQtd(idb.getQtd()+i.getQtd());
         database.alteraIngrediente(idb);
       } 
-    }catch(BaseDadosException e){
+    }catch(Exception e){
      throw new NegociosException("Erro ao cancelar o pedido, re-confirme o codigo do prato e da mesa");
     }
     
@@ -277,7 +275,7 @@ public class RegrasNegocios{
       try{
         database.insereLogP(p,m);
         database.deletaLogTemp(p,m);
-      }catch(BaseDadosException e){
+      }catch(Exception e){
        // Log.recordLog(e);
         throw new NegociosException("Erro ao registrar o pedido");
       }
@@ -295,7 +293,7 @@ public class RegrasNegocios{
     try {
      database.insereDinheiroCaixa(gains);
      database.alteraMesas(m); 
-    }catch(BaseDadosException e){
+    }catch(Exception e){
     // Log.recordLog(e);
       throw new NegociosException("Erro ao acrescentar ao caixa");
     }  
@@ -304,7 +302,7 @@ public class RegrasNegocios{
   public void apagarLog() throws NegociosException{
     try{
       database.apagaLog();
-       }catch(BaseDadosException e){
+       }catch(Exception e){
      // Log.recordLog(e);
       throw new NegociosException("Erro ao apagar o Log");
     }
@@ -321,7 +319,7 @@ public class RegrasNegocios{
          break;
       }
     }
-    }catch(BaseDadosException e){
+    }catch(Exception e){
     //  Log.recordLog(e);
       throw new NegociosException("Erro ao buscar mesa disponivel");
     }
@@ -331,7 +329,7 @@ public class RegrasNegocios{
   public void incrementarCaixa(int i)throws NegociosException{
     try{
     database.insereDinheiroCaixa(i);
-    }catch(BaseDadosException e){
+    }catch(Exception e){
      // Log.recordLog(e);
       throw new NegociosException("Erro ao acessar o banco de dados para incrementar a caixa");
     }
