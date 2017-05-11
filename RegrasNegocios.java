@@ -12,7 +12,7 @@ public class RegrasNegocios{
    private LinkedList<String> listaEspera = new LinkedList<String>();
   
   public bool confirmarSenha(String senha){
-    bool ret = buscaSenha(senha);
+    bool ret = database.buscaSenha(senha);
     return ret;
   }
    
