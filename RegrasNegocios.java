@@ -78,6 +78,37 @@ public int devolveGruposMesas(int ID)throws NegociosException{
 	 return lista;
  }
   
+ public LinkedList<Prato> devolvePratos()throws NegociosException{
+	 LinkedList<Prato> lista=new LinkedList<Prato>();
+	 try{
+		 lista= database.listaPratos();
+	 }catch(Exception e){
+		 e.printStackTrace();
+	 }
+	 return lista;
+ }
+ 
+ public LinkedList<Mesas> devolveMesas()throws NegociosException{
+	 LinkedList<Mesas> lista= new LinkedList<Mesas>();
+	 try{
+		 lista= database.listaMesas();
+	 }catch(Exception e){
+		 e.printStackTrace();
+	 }
+	 return lista;
+ }
+ 
+ public LinkedList<Ingrediente> devolvePratosGrupos()throws NegociosException{
+	 LinkedList<Ingrediente> lista=new LinkedList<Ingrediente>();
+	 try{
+		 lista= database.listaIngredientes();
+	 }catch(Exception e){
+		 e.printStackTrace();
+	 }
+	 return lista;
+ }
+ 
+ 
  
 //-----INGREDIENTES-----------------------------------------------------
  
