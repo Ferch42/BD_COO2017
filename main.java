@@ -9,17 +9,15 @@ public class main {
 		
 		RegrasNegocios rn = new RegrasNegocios();
         String senha = "abacaxi";
-        Ingrediente ar = new Ingrediente("arroz",17.0,51244);
-        Ingrediente ab = new Ingrediente("feijao",17.0,100);
+        Ingrediente ar = new Ingrediente("arroz",17.0,1);
+        Ingrediente ab = new Ingrediente("feijao",17.0,2);
 		LinkedList<Ingrediente> lista = new LinkedList<Ingrediente>();
 		lista.add(ar);
 		lista.add(ab);
 		Mesas m = new Mesas(1,true,1);
         try{
-         
         
-         
-		}catch(Exception e){
+        }catch(Exception e){
 			e.printStackTrace();
 			
 		}	

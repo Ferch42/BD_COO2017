@@ -480,6 +480,26 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 		
 		fechaConexao();
 	}
+	
+	public LinkedList<Prato> buscaLogPratosGrupo(int grupo, int ID) throws Exception{
+		
+		
+			LinkedList<Prato> pratos = new LinkedList<Prato>();
+			abreConexao();
+			preparaComandoSQL("select * from pedidoslog where mesa =? and grupo=?");
+			pstmt.setInt(1, ID);
+			pstmt.setInt(2, grupo);
+			ResultSet rs2 = pstmt.executeQuery();
+			
+			while(rs2.next()) {
+				Prato prato = buscaPratoAux(rs2.getString(2));
+				pratos.add(prato);
+			}
+			fechaConexao();
+			
+			return pratos;
+		
+	}
 
 	public void apagaLogP() throws Exception {
 		abreConexao();
@@ -535,7 +555,7 @@ public class GerenciadorBaseDados extends ConectorJDBC {
 	public void deletaLogTemp(Prato p, Mesas m) throws Exception {
 		if (buscaLogTemp(p, m)) {
 			abreConexao();
-			preparaComandoSQL("delete from pedidostemp where mesa= ? and prato=?");
+			preparaComandoSQL("delete from pedidostemp where mesa= ? and prato=? limit 1");
 			pstmt.setInt(1, m.getID());
 			pstmt.setString(2, p.getNome());
 		

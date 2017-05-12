@@ -1,5 +1,5 @@
 package negocios;
-import beans.*;
+import beans.*; 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.LinkedList;
@@ -14,7 +14,26 @@ public class RegrasNegocios {
 	   this.listaEspera =lista;
    }
    
-  public void cadastrarSenha(String senha)throws NegociosException, Exception{
+  public void insereListaEspera(String nome){
+   listaEspera.addLast(nome); 
+  }
+
+public boolean HaLista(){
+    String c = listaEspera.get(0);
+       return c != null;
+  }
+
+public void retiraListaEspera()throws NegociosException{
+    try{
+      listaEspera.removeFirst();
+    }catch(NoSuchElementException e){
+     // Log.recordLog(e);
+    throw new NegociosException("Lista de espera vazia");
+    }
+
+  }
+
+public void cadastrarSenha(String senha)throws NegociosException, Exception{
 	  if(senha.length()>10){
 		  throw new NegociosException( "Digite uma senha com menos que 10 carateres");  
 	  }
@@ -25,35 +44,49 @@ public class RegrasNegocios {
     boolean ret = database.buscaSenha(senha);
     return ret;
   }
+  
+//-----LOG MANAGEMENT----------------------------------------------------------------------------------------------
    
-  public boolean HaLista(){
-    String c = listaEspera.get(0);
-       return c != null;
+     public void apagarLogPrato() throws NegociosException{
+    try{
+      database.apagaLogP();
+       }catch(Exception e){
+     // Log.recordLog(e);
+    	   e.printStackTrace();
+      throw new NegociosException("Erro ao apagar o Log");
+    }
   }
    
+public int devolveGruposMesas(int ID)throws NegociosException{
+          int ans=0;
+	   try{
+		   ans = database.buscaMesas(ID).getGrupo();
+	   }catch(Exception e){
+		   e.printStackTrace();
+		   throw new NegociosException("Reconfirme o ID da mesa");
+	   }
+	   return ans;
+    }
+ public LinkedList<Prato> devolvePratosGrupos(int grupo, int ID)throws NegociosException{
+	 LinkedList<Prato> lista;
+	 try{
+		 lista= database.buscaLogPratosGrupo(grupo, ID);
+	 }catch(Exception e){
+		 e.printStackTrace();
+		 throw new NegociosException("Reconfirme as entradas");
+	 }
+	 return lista;
+ }
   
-  
-  public void exibirHistoricoCaixa(){
-	  
-	  
-  }
-  
-  public void exibirHistoricoPedidos(Mesas m, int grupo){
-    
-     
-  
-  };
-  
-  //public void exibirIngredientes();
-  
-  //public void exibirPratos();
-  
-  //public void exibirReceitas();
-  
+ 
+//-----INGREDIENTES-----------------------------------------------------
+ 
   public void cadastrarIngrediente (String nome,double preco, int qtd) throws NegociosException , Exception{
         Ingrediente ingrediente = new Ingrediente(nome, preco, qtd);
      try{
        database.insereIngrediente(ingrediente);
+       database.insereLogI(ingrediente);
+       decrementarCaixa(ingrediente.getQtd()*(int)ingrediente.getPreco());
     }
     catch(Exception e){
    //   Log.recordLog(e);
@@ -81,11 +114,50 @@ public void incrementaIngrediente(String nome, int inc)throws NegociosException{
       int quant = i.getQtd();  
       i.setQtd(quant+inc);
       database.alteraIngrediente(i);
+      database.insereLogI(i);
+      decrementarCaixa(inc* (int)i.getPreco());
+    }catch(Exception e) {
+    //  Log.recordLog(e);
+    	e.printStackTrace();
+      throw new NegociosException("Nao foi possivel atualizar a quantidade do ingrediente, re-confirme o nome");
+    }
+  }
+
+public void atualizarEstoqueIngrediente(String nome, int qtd)throws NegociosException{
+    try{
+    	Ingrediente atual = database.buscaIngrediente(nome);
+    	atual.setQtd(qtd);
+      database.alteraIngrediente(atual);
     }catch(Exception e) {
     //  Log.recordLog(e);
       throw new NegociosException("Nao foi possivel atualizar a quantidade do ingrediente, re-confirme o nome");
     }
+       
   }
+
+public void atualizarPrecoIngrediente(String nome, double preco)throws NegociosException{
+    try{
+    	Ingrediente atual = database.buscaIngrediente(nome);
+    	atual.setPreco(preco);
+      database.alteraIngrediente(atual);
+    }catch(Exception e) {
+     // Log.recordLog(e);
+      throw new NegociosException("Nao foi possivel atualizar o preco do ingrediente, re-confirme o nome");
+    }
+  
+  }
+
+
+  public void menuRemoverIngrediente(String nome) throws NegociosException{
+    try{
+      database.deletaIngrediente(nome);
+    }catch(Exception e){
+      // Log.recordLog(e);
+      throw new NegociosException("Nao foi possivel remover o Ingrediente");
+    }
+  }
+  
+//-----PRATOS--------------------------------------------------------------------------------------------------------------
 
 public void cadastrarPrato (String nome,  double preco, LinkedList<Ingrediente> lista,int codigo) throws NegociosException {
    
@@ -100,17 +172,17 @@ public void cadastrarPrato (String nome,  double preco, LinkedList<Ingrediente> 
     
   }
     
-public void deletarPrato(String nome)throws NegociosException  {
+public void menuRemoverPrato(String nome)throws NegociosException  {
 	  
 	try{
 	      database.deletaPrato(nome);
 	    }catch (Exception e){
 	    //Log.recordLog(e);
 	    	e.printStackTrace();
-	      throw new NegociosException("Nao foi possivel cadastrar prato, re-confirme as entradas");
+	      throw new NegociosException("Nao foi possivel deletar o prato, reconfirme as entradas");
 	    }
 }
-public void deletarPrato(int codigo)throws NegociosException  {
+public void menuRemoverPrato(int codigo)throws NegociosException  {
 	  
 	try{
 		String nome = database.buscaPratoID(codigo);
@@ -121,49 +193,7 @@ public void deletarPrato(int codigo)throws NegociosException  {
 	      throw new NegociosException("Nao foi possivel cadastrar prato, re-confirme as entradas");
 	    }
 }
-  public void cadastrarMesas(int ID, boolean d, int grupo)throws NegociosException{
-  Mesas m = new Mesas(ID,d,grupo);
-    try{
-      database.insereMesa(m);
-    }catch(Exception e){
-   // Log.recordLog(e);
-      throw new NegociosException("Nao foi possivel adicionar a Mesa, reconfirme as entradas");
-    } 
-  }
   
-  public void atualizarEstoqueIngrediente(String nome, int qtd)throws NegociosException{
-    try{
-    	Ingrediente atual = database.buscaIngrediente(nome);
-    	atual.setQtd(qtd);
-      database.alteraIngrediente(atual);
-    }catch(Exception e) {
-    //  Log.recordLog(e);
-      throw new NegociosException("Nao foi possivel atualizar a quantidade do ingrediente, re-confirme o nome");
-    }
-       
-  }
-  public void atualizarPrecoIngrediente(String nome, double preco)throws NegociosException{
-    try{
-    	Ingrediente atual = database.buscaIngrediente(nome);
-    	atual.setPreco(preco);
-      database.alteraIngrediente(atual);
-    }catch(Exception e) {
-     // Log.recordLog(e);
-      throw new NegociosException("Nao foi possivel atualizar o preco do ingrediente, re-confirme o nome");
-    }
-  
-  }
- /*  public void atualizarNomeIngrediente(String nome, String nome2)throws NegociosException{
-    Ingrediente atual = database.buscaIngrediente(nome);
-      atual.setNome(nome2);
-    try{
-      database.alteraNomeIngrediente(atual,nome);
-    }catch(Exception e) {
-     // Log.recordLog(e);
-      throw new NegociosException("Nao foi possivel atualizar o preco do ingrediente");
-       }
-    }   
-  */
   
  /* void atualizarPrecoPrato(String nome, double preco )throws NegociosException{
     try{ 
@@ -174,7 +204,10 @@ public void deletarPrato(int codigo)throws NegociosException  {
        }
   }*/
 
-  public void altualizarDisponivelMesas(int ID, boolean disp)throws NegociosException{
+
+//-----MESAS--------------------------------------------------------------------------------------
+
+public void altualizarDisponivelMesas(int ID, boolean disp)throws NegociosException{
     try{
     	Mesas m = database.buscaMesas(ID);
     	m.setID(ID);
@@ -198,25 +231,38 @@ public void deletarPrato(int codigo)throws NegociosException  {
     }
   }
   
-  public void menuRemoverIngrediente(String nome) throws NegociosException{
-    try{
-      database.deletaIngrediente(nome);
-    }catch(Exception e){
-      // Log.recordLog(e);
-      throw new NegociosException("Nao foi possivel remover o Ingrediente");
-    }
-  }      
- 
-  public void menuRemoverPrato(String nome) throws NegociosException{
-    try{
-      database.deletaPrato(nome);
-    }catch(Exception e){
-      // Log.recordLog(e);
-      throw new NegociosException("Nao foi possivel remover o Prato");
-    }
-  }
   
- /* public void menuRemoverMesa(int ID) throws NegociosException{
+public void cadastrarMesas(int ID, boolean d, int grupo)throws NegociosException{
+  Mesas m = new Mesas(ID,d,grupo);
+    try{
+      database.insereMesa(m);
+    }catch(Exception e){
+   // Log.recordLog(e);
+    	e.printStackTrace();
+      throw new NegociosException("Mesa com chave primaria inserida ja existe");
+    } 
+  }
+
+public int buscaMesaDisponivel()throws NegociosException{
+    try{
+    LinkedList<Mesas> lm = database.listaMesas();
+    for(Mesas m : lm){
+      if (m.isDisponivel() == true){
+        m.setDisponivel(false); 
+        database.alteraMesas(m);
+        return m.getID();
+         
+      }
+    }
+    }catch(Exception e){
+    //  Log.recordLog(e);
+      throw new NegociosException("Erro ao buscar mesa disponivel");
+    }
+    throw new NegociosException("Nao ha mesas disponiveis");
+  }
+
+
+/* public void menuRemoverMesa(int ID) throws NegociosException{
     try{
       database.deletaMesas(ID);
     }catch(Exception e){
@@ -249,32 +295,24 @@ public void deletarPrato(int codigo)throws NegociosException  {
 		pstmt.execute();
 		fechaConexao();
   }
-  */
-  public int retornarCaixa()throws NegociosException{
-    try{
-      int c = database.buscaDinheiroCaixa();
-      if(c==-2000000000){throw new NegociosException("Valor de caixa nao existe");}
-      return c;
-    }catch(Exception e){
-  //  Log.recordLog(e);
-      throw new NegociosException("Erro ao buscar o valor de caixa");
-    }
-  }
-  
-  public void fazerPedido(int cod, int ID)throws NegociosException{
+ */
+
+
+//-----PEDIDOS--------------------------------------------------------------------
+
+
+public void fazerPedido(int cod, int ID)throws NegociosException{
     try{
       Mesas m = database.buscaMesas(ID);
       String nome = database.buscaPratoID(cod);
       Prato p = database.buscaPrato(nome);
-      database.insereLogTemp(p,m);
       for(Ingrediente i : p.getReceita()){
-        try{
+        
           Ingrediente idb = database.buscaIngrediente(i.getNome());
-          if(idb.getQtd()<=0){throw new NegociosException("O ingrediente " +i.getNome()+" esta esgotado");}
-           }catch(Exception e){
-            throw new NegociosException("O ingrediente " +i.getNome()+" nao existe");
-        }
+          if(idb.getQtd()<=0){throw new NegociosException("Ingrediente esgotado");}        
+       
       }
+      database.insereLogTemp(p,m);
       for(Ingrediente i2 : p.getReceita()){
         Ingrediente idb2 = database.buscaIngrediente(i2.getNome());
         idb2.setQtd(idb2.getQtd()-i2.getQtd());
@@ -282,7 +320,7 @@ public void deletarPrato(int codigo)throws NegociosException  {
       }
     } catch(Exception e){
     	e.printStackTrace();
-       throw new NegociosException("Refer to the error indicated by the database");
+       throw new NegociosException("Consulte o erro indicado pelo banco de dados");
     }
   }
   
@@ -306,9 +344,9 @@ public void deletarPrato(int codigo)throws NegociosException  {
     
   }
   
-  public void inserirPedidoEncerrado(Mesas m)throws NegociosException, Exception{
+  public void inserirPedidoEncerrado(Mesas m, LinkedList<Prato> temp)throws NegociosException, Exception{
   
-	  LinkedList<Prato> temp = database.buscaLogTemp(m); 
+	 
 	  for (Prato p : temp){
       try{
         database.insereLogP(p,m);
@@ -325,7 +363,7 @@ public void deletarPrato(int codigo)throws NegociosException  {
     try {
     	Mesas m = database.buscaMesas(ID);
     	LinkedList<Prato> temp = database.buscaLogTemp(m);
-    	inserirPedidoEncerrado(m);
+    	inserirPedidoEncerrado(m,temp);
     	int gains = 0;
     	try{
     	for(Prato p : temp){
@@ -345,33 +383,10 @@ public void deletarPrato(int codigo)throws NegociosException  {
     }  
   }
   
-  public void apagarLogPrato() throws NegociosException{
-    try{
-      database.apagaLogP();
-       }catch(Exception e){
-     // Log.recordLog(e);
-    	   e.printStackTrace();
-      throw new NegociosException("Erro ao apagar o Log");
-    }
-  }      
+    
   
-  public int buscaMesaDisponivel()throws NegociosException{
-    try{
-    LinkedList<Mesas> lm = database.listaMesas();
-    for(Mesas m : lm){
-      if (m.isDisponivel() == true){
-        m.setDisponivel(false); 
-        database.alteraMesas(m);
-        return m.getID();
-         
-      }
-    }
-    }catch(Exception e){
-    //  Log.recordLog(e);
-      throw new NegociosException("Erro ao buscar mesa disponivel");
-    }
-    throw new NegociosException("Nao ha mesas disponiveis");
-  }
+//-----CAIXA---------------------------------------------------------------------
+
   
   public void incrementarCaixa(int i)throws NegociosException{
     try{
@@ -384,46 +399,46 @@ public void deletarPrato(int codigo)throws NegociosException  {
     }
   }
   
-   public void comecarCaixa(int i){
+  public int retornarCaixa()throws NegociosException{
+    try{
+      int c = database.buscaDinheiroCaixa();
+      if(c==-2000000000){throw new NegociosException("Valor de caixa nao existe");}
+      return c;
+    }catch(Exception e){
+  //  Log.recordLog(e);
+      throw new NegociosException("Erro ao buscar o valor de caixa");
+    }
+  }
+ 
+ public void comecarCaixa(int i)throws NegociosException{
 	   try{
+		   int test = database.buscaDinheiroCaixa();
+		   if(test!= -2000000000) throw new NegociosException("Caixa ja existe");
 		   database.insereDinheiroCaixa(i);
 	   }catch(Exception e ){
 		   e.printStackTrace();
 	   }
 	   
    }
-  public void decrementarCaixa(int i)throws NegociosException{
-	  try{
-		  int atual = database.buscaDinheiroCaixa();
-		    database.alteraCaixa(atual-i);
-		    }catch(Exception e){
-		     // Log.recordLog(e);
-		    	e.printStackTrace();
-		      throw new NegociosException("Erro ao acessar o banco de dados para incrementar a caixa");
-		    }
-	  
-	  
-  }
-  public void deletarCaixa()throws Exception{
-	  try{
-		  database.deletaDinheiroCaixa();
-	  }catch(Exception e ){
-		  
-		  e.printStackTrace();
-	  }
-  }
-  public void insereListaEspera(String nome){
-   listaEspera.addLast(nome); 
-  }
-  
-  public void retiraListaEspera()throws NegociosException{
-    try{
-      listaEspera.removeFirst();
-    }catch(NoSuchElementException e){
-     // Log.recordLog(e);
-    throw new NegociosException("Lista de espera vazia");
-    }
 
-  }
+ public void decrementarCaixa(int i)throws NegociosException{
+	try{
+		int atual = database.buscaDinheiroCaixa();
+		database.alteraCaixa(atual-i);
+	}catch(Exception e){
+		// Log.recordLog(e);
+		e.printStackTrace();
+		throw new NegociosException("Erro ao acessar o banco de dados para incrementar a caixa");
+	}
+   }
+ 
+   public void deletarCaixa()throws Exception{
+	 try{
+		 database.deletaDinheiroCaixa();
+	 }catch(Exception e ){
+		 
+		 e.printStackTrace();
+	 }
+ }
   
 }
