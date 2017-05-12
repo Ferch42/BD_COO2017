@@ -98,7 +98,7 @@ public int devolveGruposMesas(int ID)throws NegociosException{
 	 return lista;
  }
  
- public LinkedList<Ingrediente> devolvePratosGrupos()throws NegociosException{
+ public LinkedList<Ingrediente> devolveIngredientes()throws NegociosException{
 	 LinkedList<Ingrediente> lista=new LinkedList<Ingrediente>();
 	 try{
 		 lista= database.listaIngredientes();
