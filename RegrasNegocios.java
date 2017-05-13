@@ -113,7 +113,8 @@ public int devolveGruposMesas(int ID)throws NegociosException{
 //-----INGREDIENTES-----------------------------------------------------
  
   public void cadastrarIngrediente (String nome,double preco, int qtd) throws NegociosException , Exception{
-        Ingrediente ingrediente = new Ingrediente(nome, preco, qtd);
+        if(qtd<=0) throw new NegociosException("A quantidade precisa ser maior que zero");
+	 Ingrediente ingrediente = new Ingrediente(nome, preco, qtd);
      try{
        database.insereIngrediente(ingrediente);
        database.insereLogI(ingrediente);
