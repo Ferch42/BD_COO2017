@@ -53,6 +53,8 @@ create table codigos(
     prato varchar(150) not null
 );
 
+insert into senhaadm values ("abacaxi");
+insert into caixa values (0);
 insert into mesas (ID,disponivel,grupo) values (1,true,1);
 insert into mesas (ID,disponivel,grupo) values (2,true,1);
 insert into mesas (ID,disponivel,grupo) values (3,true,1);
@@ -65,7 +67,18 @@ insert into mesas (ID,disponivel,grupo) values (9,true,1);
 insert into mesas (ID,disponivel,grupo) values (10,true,1);
 
 
+insert into estoque (ingredientes,qtd,preco) values ('arroz',50,5);
+insert into estoque (ingredientes,qtd,preco) values ('feijao',70,4);
+insert into pratos (nome, preco) values ("arroz com feijao",20);
+insert into codigos (codigo,prato) values (1,"arroz com feijao");
+insert into receitas (prato,ingredientes,qtd) values ("arroz com feijao","arroz",1);
+insert into receitas (prato,ingredientes,qtd) values ("arroz com feijao","feijao",1);
 
 
-select * from estoque;
-select * from pratos;
+
+insert into estoque (ingredientes,qtd,preco) values ('leite',20,3);
+insert into estoque (ingredientes,qtd,preco) values ('sorvete',100,4);
+insert into pratos (nome, preco) values ("milkshake do Freire",15);
+insert into codigos (codigo,prato) values (2,"milkshake do Freire");
+insert into receitas (prato,ingredientes,qtd) values ("milkshake do Freire","leite",1);
+insert into receitas (prato,ingredientes,qtd) values ("milkshake do Freire","sorvete",2);
