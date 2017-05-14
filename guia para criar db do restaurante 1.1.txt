@@ -4,7 +4,8 @@ use oruzabohne;
 create table estoque(
 	ingredientes varchar(150) not null,
 	qtd int default 0,
-	preco double default 0
+	preco double default 0,
+	primary key (ingredientes)
 	);
 
 create table caixa( dinheiro int not null);
