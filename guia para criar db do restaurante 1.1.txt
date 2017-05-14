@@ -53,5 +53,19 @@ create table codigos(
     prato varchar(150) not null
 );
 
+insert into mesas (ID,disponivel,grupo) values (1,true,1);
+insert into mesas (ID,disponivel,grupo) values (2,true,1);
+insert into mesas (ID,disponivel,grupo) values (3,true,1);
+insert into mesas (ID,disponivel,grupo) values (4,true,1);
+insert into mesas (ID,disponivel,grupo) values (5,true,1);
+insert into mesas (ID,disponivel,grupo) values (6,true,1);
+insert into mesas (ID,disponivel,grupo) values (7,true,1);
+insert into mesas (ID,disponivel,grupo) values (8,true,1);
+insert into mesas (ID,disponivel,grupo) values (9,true,1);
+insert into mesas (ID,disponivel,grupo) values (10,true,1);
+
+
+
+
 select * from estoque;
 select * from pratos;
