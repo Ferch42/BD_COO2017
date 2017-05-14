@@ -1,5 +1,5 @@
-create database restaurantemagico;
-use restaurantemagico;
+create database oruza&bohne;
+use oruza&bohne;
 
 create table estoque(
 	ingredientes varchar(150) not null,
