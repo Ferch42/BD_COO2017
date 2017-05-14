@@ -1,5 +1,5 @@
-create database oruza&bohne;
-use oruza&bohne;
+create database oruzabohne;
+use oruzabohne;
 
 create table estoque(
 	ingredientes varchar(150) not null,
